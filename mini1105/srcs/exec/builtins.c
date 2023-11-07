@@ -6,17 +6,11 @@
 /*   By: hyuim <hyuim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 21:11:37 by hyuim             #+#    #+#             */
-/*   Updated: 2023/11/02 18:10:12 by hyuim            ###   ########.fr       */
+/*   Updated: 2023/11/06 19:16:10 by hyuim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../headers/minishell.h"
-
-//builtin -> error : write(2,... ) & return;
-//if one cmd & builtin, after exec exit();
-
-//aasdf => cmd not found
-//./asdf => no such file or directory
 
 int	echo(char **cmd_argv)
 {
@@ -115,17 +109,31 @@ int	pwd()
 	return (0);
 }
 
+int	print_declare_env(char **str_arr)
+{
+	int i = -1;
+	while (str_arr[++i])
+	{
+		if (write(2, "declare -x ", 11) == -1)
+			return (1);
+		if (write(STDOUT_FILENO, str_arr[i], ft_strlen(str_arr[i])) == -1)
+			return (1);
+		if (write(STDOUT_FILENO, "\n", 1) == -1)
+			return (1);
+	}
+	return (0);
+}
+
 int	export(t_bundle *bundle, char **cmd_argv)
 {
-//1. if argv has external character, error.
-//1-1. but + allowed after '='. if '+' located before '=', it's not allowed.
-//2. if argv has =, after = str all value.
-//3. if argv doesn't have external character but also doesn't have =, env doesn't be updated
-//4. first char '=' is impossible.
-//5. external characters are allowed after '='.
 	int	idx;
 	int	err_flag;
 
+	idx = -1;
+	while (cmd_argv[++idx])
+		;
+	if (idx == 1)
+		return (print_declare_env(bundle->envp));
 	idx = 0;
 	err_flag = 0;
 	while (cmd_argv[++idx])
@@ -143,7 +151,6 @@ int	export(t_bundle *bundle, char **cmd_argv)
 			continue ;
 		else
 			append_new_env_var(bundle, -1, cmd_argv[idx]);
-		//printf("export here1\n");
 	}
 	return (err_flag);
 }
@@ -157,14 +164,12 @@ void	append_new_env_var(t_bundle *bundle, int ret_envp_idx, char *new_str)
 	ret_envp = (char **)malloc(sizeof(char *) * (bundle->envp_len + 2));
 	if (!ret_envp)
 		ft_error(MALLOC_ERRMSG, 1234);
-	//write(2, "export1\n", 8);
 	ret_envp[bundle->envp_len + 1] = NULL;
 	while (++ret_envp_idx < bundle->envp_len)
 		ret_envp[ret_envp_idx] = bundle->envp[ret_envp_idx];
 	ret_envp[ret_envp_idx] = ft_strdup(new_str);
 	if (!ret_envp[ret_envp_idx])
 		ft_error(MALLOC_ERRMSG, 1234);
-	//write(2, "export3\n", 8);
 	free(bundle->envp);
 	bundle->envp = ret_envp;
 	bundle->envp_len++;
@@ -196,19 +201,13 @@ int	unset(t_bundle *bundle, char **cmd_argv)
 	err_flag = 0;
 	while (cmd_argv[++idx])
 	{
-		//printf("unset here0\n");
 		if (check_exeception(cmd_argv[idx]) == -1)
-		{
 			err_flag = 1;
-			//printf("unset here1.5\n");
-		}
 		else if (ft_strlen(cmd_argv[idx]) >= 1 && cmd_argv[idx][0] == '_')
 			continue ;
 		else
 		{
-			//write(2, "unset here1\n", 12);
 			found_idx = is_in_envp(bundle, cmd_argv[idx]);
-			//printf("found idx : %d\n", found_idx);
 			if (found_idx != -1)
 				rm_inp_env_var(bundle, found_idx);
 		}
@@ -317,7 +316,6 @@ void	ft_exit(char **cmd_argv)
 			atoi_ret = 1;
 		}
 	}
-	//printf("atoi_ret : %d\n", atoi_ret);
 	exit(atoi_ret);
 }
 

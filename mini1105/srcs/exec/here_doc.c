@@ -6,7 +6,7 @@
 /*   By: hyuim <hyuim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 15:52:35 by hyuim             #+#    #+#             */
-/*   Updated: 2023/11/02 16:14:29 by hyuim            ###   ########.fr       */
+/*   Updated: 2023/11/07 11:40:19 by hyuim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ int	pre_exec_here_doc(t_pipe *root, t_bundle *bundle)
 	if (root->pipe)
 		if (pre_exec_here_doc(root->pipe, bundle) == -1)
 			return (-1);
-	//write(2, "hyuim5\n", 7);
 	return (0);
 }
 
@@ -78,7 +77,7 @@ int	search_here_doc(t_redirect_s *redirect_s, t_bundle *bundle, t_list_hrdc *new
 
 int	exec_here_doc(char *eof, t_bundle *bundle) //here_doc
 {
-	write(2, "exec here doc\n", 14);////////////////////////////////////
+	//write(2, "exec here doc\n", 14);////////////////////////////////////
 	char	*temp_filename;
 	char	*temp;
 	int		tempfile_fd;
@@ -100,17 +99,14 @@ int	exec_here_doc(char *eof, t_bundle *bundle) //here_doc
 	tempfile_fd = open(temp_filename, open_flag, 0644);
 	if (write_to_tempfile_until_eof(eof, tempfile_fd) == -1)
 	{
-		//write(2, "hyuim1\n", 7);
 		close(tempfile_fd);
 		return (-1);
 	}
 	if (tempfile_fd == -1)
 	{
-		//write(2, "hyuim2\n", 7);
 		ft_error(OPEN_ERRMSG, 1234);
 	}
 	close(tempfile_fd);
-	//write(2, "hyuim3\n", 7);
 	new_node = ft_lstnew(temp_filename);
 	if (!new_node)
 		ft_error(MALLOC_ERRMSG, 1234);
@@ -122,7 +118,6 @@ void	sigint_handler_during_heredoc()
 {
 	exit_status = -1;
 	close(STDIN_FILENO);
-	//printf("exit status : %d\n", exit_status);
 }
 
 void	sigquit_handler_during_heredoc()
@@ -151,8 +146,6 @@ int	write_to_tempfile_until_eof(char *eof, int tempfile_fd)
 		inp_len = ft_strlen(inp);
 		if (inp == NULL || ((inp_len == eof_len) && !ft_strcmp(inp, eof)))
 		{
-			//write(2, "eof : ", 6);
-			//write(2, inp, ft_strlen(inp));
 			free(inp);
 			break ;
 		}
@@ -165,15 +158,17 @@ int	write_to_tempfile_until_eof(char *eof, int tempfile_fd)
 			ft_error(WRITE_ERRMSG, 1234);
 		free(add_newline);
 		add_newline = NULL;
-		//printf("aaaaaaaaaa\n");
 	}
-	if (exit_status < 0)
-		exit_status *= -1;
 	signal(SIGINT, sigint_handler);
 	signal(SIGQUIT, sigquit_handler);
 	dup2(before_stdin, STDIN_FILENO);
 	close(before_stdin);
 	if (exit_status < 0)
+	{
+		exit_status *= -1;
 		return (-1);
+	}
+	//if (exit_status < 0)
+	//	return (-1);
 	return (0);
 }

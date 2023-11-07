@@ -6,7 +6,7 @@
 /*   By: hgu <hgu@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 19:25:06 by hgu               #+#    #+#             */
-/*   Updated: 2023/11/05 19:44:52 by hgu              ###   ########.fr       */
+/*   Updated: 2023/11/07 13:00:32 by hgu              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,15 @@ t_redirect	*make_redirect(t_token *token)
 
 	new = malloc(sizeof(t_redirect));
 	new->type = token->type;
-	new->filename = token->next->value; //리다이렉트노드 다음토큰에 파일이름저장되어있으므로
+	if (token->next->value[0] == '\0')
+	{
+		free(token->next->value);
+		new->filename = token->next->expansion_fail;
+		printf("%s: ambiguous redirect\n",new->filename);
+		exit(1);
+	}
+	else if (token->next)
+		new->filename = token->next->value; //리다이렉트노드 다음토큰에 파일이름저장되어있으므로
 	free(token->value);
 	return (new);
 }
@@ -119,6 +127,8 @@ t_pipe	*make_tree(t_token *token_head, t_bundle *bundle)
 		{
 			make_redirect_s(&(pipe->cmd->redirect_s), tmp); //syntax단계에서 리다이렉션뒤에는 파일이름이 있는지 검사하므로
 			tmp = tmp->next; //다음토큰으로 넘긴다
+			if (tmp == NULL) //리다이렉트이후
+				break ;
 		}
 		else //나머지 word의 경우
 			make_simple_cmd(pipe->cmd, tmp, bundle);//커맨드를 한번 받았으면 이후로는 argv에넣어야한다

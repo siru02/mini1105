@@ -6,22 +6,11 @@
 /*   By: hgu <hgu@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/04 20:07:20 by hyuim             #+#    #+#             */
-/*   Updated: 2023/11/05 20:14:25 by hgu              ###   ########.fr       */
+/*   Updated: 2023/11/07 13:04:23 by hgu              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../headers/minishell.h"
-
-//TODO :: redirection error -> err flag on
-//TODO :: 1234 -> correct exit status
-//TODO :: signal int, quit -> exit_status update.
-//TODO :: exit status -> using waitpid, set the last cmd's status
-//TODO :: ctrl + c during here_doc
-//TODO :: get return of wait and get signals
-//TODO :: rm tempfiles in hrdc list
-
-
-
 
 int	exit_status;
 
@@ -101,14 +90,12 @@ int	check_file_exist(t_redirect_s *redirect_s)
 {
 	if (redirect_s && redirect_s->redirect && redirect_s->redirect->filename)
 	{
-		//printf("%s\n", redirect_s->redirect->filename);
 		if (access(redirect_s->redirect->filename, F_OK))
 		{
 			write(2, redirect_s->redirect->filename, ft_strlen(redirect_s->redirect->filename));
 			write(2, ": No such file or directory\n", 28);
 			return (-1);
 		}
-		//write(2, "here hey!\n", 10);
 	}
 	if (redirect_s->redirect_s)
 		if (check_file_exist(redirect_s->redirect_s) == -1)
@@ -137,13 +124,8 @@ int main(int argc, char *argv[], char *envp[])
 	{
 		init_bundle(&bundle);
 		idx = -1;
-		//write(2, "--------------------here1\n", 26);
-		//printf("envp_len : %d\n", bundle.envp_len);
 		printf("exit status : %d\n", exit_status);
 		inp = readline("ϞϞ(๑⚈ ․̫ ⚈๑) > ");
-		//sleep(1); //////////////////////
-		//inp = readline(">>>>>>>>>>>>>> ");
-		//write(2, "--------------------here2\n", 26);
 		if (!inp)
 		{
 			write(1, "exit\n", 5);
@@ -154,18 +136,17 @@ int main(int argc, char *argv[], char *envp[])
 		add_history(inp);
 		root = parsing(&bundle, inp);
 		free(inp);
-		print_tree(root, &bundle);
 		if (!root)
 			continue ;
 		if (check_one_cmd_and_builtin(root) == 1)
 		{
-			//write(2, "here4\n", 6);
 			if (root->cmd->redirect_s)
 			{
 				before_stdin = dup(STDIN_FILENO);
 				before_stdout = dup(STDOUT_FILENO);
 				if (pre_exec_here_doc(root, &bundle) == -1)
 				{
+					printf("here3\n"); //
 					dup2(before_stdin, STDIN_FILENO);
 					dup2(before_stdout, STDOUT_FILENO);
 					continue ;
@@ -181,23 +162,9 @@ int main(int argc, char *argv[], char *envp[])
 		}
 		else
 		{
-			//write(2, "exec multiple cmd\n", 18);
 			if (pre_exec_here_doc(root, &bundle) != -1)
 			{
-				//printf("step1\n");
-				//if (root && root->cmd && root->cmd->redirect_s)
-				//{
-				//	printf("step2\n");
-				//	if (check_file_exist(root->cmd->redirect_s) != -1)
-				//	{
-				//		printf("step3\n");
-				//		//write(2, "herehere\n", 9);
-				//		if (root && root->cmd && root->cmd->simple_cmd && root->cmd->simple_cmd->cmd_path)
-				//		{
-							//printf("step4\n");
 				exec_recur(root, &bundle, -1, 0);
-				//sleep(100);
-				//printf("cmd cnt : %d\n", bundle.cmd_cnt);
 				signal(SIGINT, sigint_handler_during_fork);
 				signal(SIGQUIT, sigquit_handler_during_fork);
 				while (++idx < bundle.cmd_cnt)
@@ -210,7 +177,6 @@ int main(int argc, char *argv[], char *envp[])
 						else
 							exit_status = WEXITSTATUS(exit_result);
 					}
-					//printf("exit status : %d\n", exit_status);
 				}
 				if (bundle.cmd_cnt == 0)
 				{
@@ -221,74 +187,11 @@ int main(int argc, char *argv[], char *envp[])
 						exit_status = WEXITSTATUS(exit_result);
 
 				}
-				//		}
-				//	}
-				//}
-
 			}
 		}
 		free_hrdc_nodes(&bundle);
 		free_tree(root);
 	}
-	//after one builtin, reset redirection
-
-//	(void)argc;
-//	(void)argv;
-//	(void)envp;
-//	t_bundle bundle;
-//	t_pipe root;
-//	t_cmd cmd;
-//	t_redirect_s redirs;
-//	t_redirect_s redirs2;
-//	t_redirect red1;
-//	//t_redirect red2;
-//	t_simple_cmd sim_cmd;
-
-//	t_pipe pipe2;
-//	t_cmd cmd2;
-//	t_simple_cmd smp_cmd2;
-
-////////////////////////////////////////
-//	init_bundle(&bundle, envp);
-//	bundle.cmd_cnt = 2;
-////////////////////////////////////////
-
-//	root.cmd = &cmd;
-//	root.pipe = &pipe2;
-//	cmd.redirect_s = &redirs;
-//	cmd.simple_cmd = &sim_cmd;
-//	redirs.redirect = &red1;
-//	redirs.redirect_s = NULL;
-//	//redirs.redirect_s = &redirs2;
-//	//redirs2.redirect = &red2;
-//	redirs2.redirect_s = NULL;
-//	red1.type = REDIR_LEFT;
-//	red1.filename = "infile";
-//	//red2.type = REDIR_RIGHT;
-//	//red2.filename = "outfile";
-//	sim_cmd.cmd_path = "sleep";
-//	char *argv_custom[3] = {"sleep", "3", NULL};
-//	sim_cmd.cmd_argv = argv_custom;
-//	//char *test = readline("> ");
-//	//(void)test;
-//	//int	idx = -1;
-//	//while (bundle.envp[++idx])
-//	//	printf("main envp : %p\n", bundle.envp[idx]);
-//	//printf("%s\n", bundle.envp[0]); //here NULL error!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-//	pipe2.pipe = NULL;
-//	pipe2.cmd = &cmd2;
-//	cmd2.redirect_s = NULL;
-//	cmd2.simple_cmd = &smp_cmd2;
-//	smp_cmd2.cmd_path = "sleep";
-//	char *argv_custom2[3] = {"sleep", "3", NULL};
-//	smp_cmd2.cmd_argv = argv_custom2;
-
-//	pre_exec_here_doc(&root, &bundle);
-//	exec_recur(&root, &bundle, -1, 0);
-//	//free_remainders(&bundle);
-
 	free_bundle(&bundle);
 	return (0);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   free_tree.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hgu <hgu@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: hyuim <hyuim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/01 17:49:57 by hyuim             #+#    #+#             */
-/*   Updated: 2023/11/05 20:14:46 by hgu              ###   ########.fr       */
+/*   Updated: 2023/11/06 19:11:42 by hyuim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,17 +25,11 @@ void	free_cmd(t_cmd *cmd)
 {
 	int	idx;
 
-	free(cmd->simple_cmd->cmd_path); //cmd_path와 cmd_argv[0]은 일치한다
+	free(cmd->simple_cmd->cmd_path);
 	idx = 0;
-	//printf("aa : %s\n", cmd->simple_cmd->cmd_argv[0]);
-	//free(cmd->simple_cmd->cmd_argv[0]);
-	if (cmd->simple_cmd->cmd_argv) //cmd_argv가 존재하면 //1105
-		while (cmd->simple_cmd->cmd_argv[++idx] != NULL) //1105
-		{
-			printf("aa : %s\n", cmd->simple_cmd->cmd_argv[idx]); //1105
-			free(cmd->simple_cmd->cmd_argv[idx]); //1105체크 여기서 오류발생
-		}
-	//printf("ab : %s\n", cmd->simple_cmd->cmd_argv[idx]);
+	if (cmd->simple_cmd->cmd_argv)
+		while (cmd->simple_cmd->cmd_argv[++idx])
+			free(cmd->simple_cmd->cmd_argv[idx]);
 	free(cmd->simple_cmd->cmd_argv);
 	free(cmd->simple_cmd);
 	if (cmd->redirect_s)

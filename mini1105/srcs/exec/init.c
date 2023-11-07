@@ -6,7 +6,7 @@
 /*   By: hyuim <hyuim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/05 16:14:06 by hyuim             #+#    #+#             */
-/*   Updated: 2023/10/31 19:45:11 by hyuim            ###   ########.fr       */
+/*   Updated: 2023/11/06 19:14:44 by hyuim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,11 +51,6 @@ void	init_bundle(t_bundle *bundle)
 	bundle->last_pid = -1;
 	signal(SIGINT, sigint_handler);
 	signal(SIGQUIT, sigquit_handler);
-	//tcgetattr(STDIN_FILENO, &(bundle->new_term));
-	//bundle->new_term.c_lflag &= ~(ICANON | ECHO);
-	////bundle->new_term.c_cc[VMIN] = 1;
-	////bundle->new_term.c_cc[VTIME] = 0;
-	//tcsetattr(STDIN_FILENO, 0, &(bundle->new_term));
 }
 
 void	cp_envp(t_bundle *bundle, char *envp[])

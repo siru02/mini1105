@@ -6,7 +6,7 @@
 /*   By: hyuim <hyuim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/01 21:19:25 by hyuim             #+#    #+#             */
-/*   Updated: 2023/11/02 16:57:42 by hyuim            ###   ########.fr       */
+/*   Updated: 2023/11/06 19:14:45 by hyuim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,6 @@ int	print_2d_str(char **str_arr)
 
 int	exec_recur(t_pipe *root, t_bundle *bundle, int before_fd_read, int cmd_idx)
 {
-	//sleep(1);//////////////////////////
-	//write(2, "\n", 1);
-	//write(2, "exec recur\n", 11);/////////////////////////////////////
 	int	pid;
 	int	idx;
 
@@ -48,23 +45,13 @@ int	exec_recur(t_pipe *root, t_bundle *bundle, int before_fd_read, int cmd_idx)
 		bundle->current_cnt = bundle->hrdc_cnt_list;
 	}
 	pid = fork();
-	if (pid == -1) //-1 return -> bundle->err_msg set
+	if (pid == -1)
 		return (-1);
 	//------------child-----------------
 	if (pid == 0 && root->cmd)
 	{
-		//write(2, "********child process\n", 22);
-		//int before_stdin = dup(STDIN_FILENO);
 		if (exec_cmd(root->cmd, bundle, before_fd_read, cmd_idx) == -1)
-		{
-			//write(2, "plz help\n", 9);
-			//dup2(before_stdin, STDIN_FILENO);
-			//close(before_stdin);
 			return (-1);
-		}
-		//write(2, "plz help2\n", 10);
-		//dup2(before_stdin, STDIN_FILENO);
-		//close(before_stdin);
 		return (0);
 	}
 	//-----------------------------------
@@ -83,8 +70,6 @@ int	exec_recur(t_pipe *root, t_bundle *bundle, int before_fd_read, int cmd_idx)
 
 void	base_redir_first_cmd(t_bundle *bundle)
 {
-	//write(2, "base redir first cmd\n", 21);//////////////////////////
-	//printf("cmd cnt : %d\n", bundle->cmd_cnt);
 	if (bundle->cmd_cnt > 1)
 		if (dup2(bundle->fd[1], STDOUT_FILENO) == -1)
 			ft_error(DUP2_ERRMSG, 1234);
@@ -137,13 +122,10 @@ int	exec_cmd(t_cmd *cmd, t_bundle *bundle, int before_fd_read, int cmd_idx)
 	if (cmd->redirect_s)
 		exec_redirect_s_recur(cmd->redirect_s, bundle);
 	if (bundle->cmd_cnt == 0)
-		exit(0); ///1102
+		exit(0);
 	// exec cmd
 	if (!bundle->err_flag && cmd->simple_cmd->cmd_path)
-	{
-		//printf("wtf\n");
 		exec_simple_cmd(cmd->simple_cmd, bundle);
-	}
 	return (0);
 }
 
@@ -200,7 +182,6 @@ void	exec_simple_cmd(t_simple_cmd *simple_cmd, t_bundle *bundle)
 		write(2, ": command not found\n", 20);
 		exit(127);
 	}
-	//write(2, "exec simple cmd errrr2\n", 23);////////////////////////////
 	while (parsed_path[++idx])
 	{
 		temp = ft_strjoin(parsed_path[idx], "/");
@@ -216,7 +197,6 @@ void	exec_simple_cmd(t_simple_cmd *simple_cmd, t_bundle *bundle)
 		free(new_path);
 	}
 	free_2d_malloced_str(parsed_path);
-	write(2, "exec simple cmd error\n", 22);////////////////////////////
 	select_err_msg(simple_cmd->cmd_path);
 }
 
@@ -227,10 +207,6 @@ char	**get_path(char **envp)
 	char	**splited_path;
 
 	idx = -1;
-	//printf("here in gp 1\n"); //////////////////////////////////
-	//printf("envp[0] : %p\n", envp);//////////////////////////////////;
-	//write(1, envp[0], ft_strlen(envp[0]));
-	//printf("hi\n");
 	while (envp[++idx])
 	{
 		if (ft_strlen(envp[idx]) >= 5 && ft_strncmp(envp[idx], "PATH=", 5) == 0)
@@ -296,14 +272,7 @@ void	redir_right(char *filename)
 	//write(2, "redir_right\n", 12);///////////////////////////////
 	int	outfile_fd;
 	int	open_flag;
-	//char	*err_msg; // if error occured, exit? or err_msg set and then return return return?
 
-	//if (access(filename, F_OK))
-	//{
-	//	write(2, filename, ft_strlen(filename));
-	//	write(2, ": No such file or directory\n", 28);
-	//	exit(1);
-	//}
 	open_flag = O_RDWR | O_CREAT | O_TRUNC;
 	outfile_fd = open(filename, open_flag, 0644);
 	if (outfile_fd == -1)

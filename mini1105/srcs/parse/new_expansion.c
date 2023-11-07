@@ -6,7 +6,7 @@
 /*   By: hgu <hgu@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 13:51:10 by hgu               #+#    #+#             */
-/*   Updated: 2023/11/05 22:26:51 by hgu              ###   ########.fr       */
+/*   Updated: 2023/11/07 13:30:13 by hgu              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,16 @@ t_token	*delete_empty_token(t_token *head)
 		printf("empty test : %s\n", now->value);
 		if (now->value[0] == '\0')//토큰이 빈 문자열이면
 		{
-			printf("this is empty\n");
-			before->next = now->next; //이전노드의 next를 현재노드의 next로 이어준다
-			free(now->value); //문자열 free
-			free(now); //토큰 free
-			now = before;
+			if (before->type >= 7 && before->type <= 10) //1106 현재 토큰이 빈 문자열인데 이전 토큰이 리다이렉션이면 프리해주고 실행해야한다
+			;
+			else
+			{
+				printf("this is empty\n");
+				before->next = now->next; //이전노드의 next를 현재노드의 next로 이어준다
+				free(now->value); //문자열 free
+				free(now); //토큰 free
+				now = before;
+			}
 		}
 		before = now;
 		now = now->next;
@@ -303,7 +308,8 @@ void	case_not_find_in_envp(t_token *token, int start, int cut)
 	tmp = malloc(malloc_size);
 	ft_strlcpy(tmp, token->value, start + 1);//수정필요 //$나오기 직전까지 원래 문자열을 복사한다
 	ft_strlcat(tmp, token->value + cut + 1, malloc_size);//수정필요 //tmp뒤에 원래 $~~ 뒤에 있던 부분을 붙여준다
-	free(token->value);
+	token->expansion_fail = token->value; //1106
+	//free(token->value); //확장에 실패해도 토큰의 확장실패 임시변수에 저장해둔다
 	token->value = tmp;
 	return ;
 }

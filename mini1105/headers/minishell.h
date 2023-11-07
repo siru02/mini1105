@@ -6,7 +6,7 @@
 /*   By: hgu <hgu@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/01 14:48:13 by hyuim             #+#    #+#             */
-/*   Updated: 2023/11/05 22:26:41 by hgu              ###   ########.fr       */
+/*   Updated: 2023/11/07 13:00:04 by hgu              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ typedef struct s_token
 	int				expansion_cnt; //1105
 	int				expansion_idx;//1105 확장이 끝난 지점의 바로 다음 idx반환
 	char			*value;
+	char			*expansion_fail;
 	struct s_token	*next;
 }				t_token;
 
